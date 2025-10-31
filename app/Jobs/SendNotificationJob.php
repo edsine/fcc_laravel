@@ -81,7 +81,15 @@ if (empty($smsApiUrl) || empty($email) || empty($sender_name) || empty($forcednd
             "forcednd"    => $forcednd,
         ];
 
-       // Log::debug('SendNotificationJob: Testing SMS batch payload', ['payload' => $payload]);
+        $payload1 = [
+            "email"       => $email,
+            "message"     => $messageText,
+            "sender_name" => $sender_name,
+            "recipients"  => implode(',', $phones), // <-- IMPORTANT: CSV string, not array
+            "forcednd"    => $forcednd,
+        ];
+
+        Log::debug('SendNotificationJob: SMS batch payload started.', ['payload' => $payload1]);
 
         try {
             $response = Http::withHeaders([
