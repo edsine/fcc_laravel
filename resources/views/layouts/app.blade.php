@@ -33,10 +33,23 @@
   opacity: 0.6;           /* Make it look dimmed */
   text-decoration: none;
 }
+ html, body {
+      height: 100%;
+    }
+    .page-wrapper {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .content {
+      flex: 1;
+    }
+    
     </style>
 </head>
 
 <body>
+    <div class="page-wrapper">
     @section('header')
         <div class="fixed-header do-not-print">
             @php
@@ -330,7 +343,7 @@
         </div>
     @show
 
-    <div class="container-fluid">
+    <div class="content container-fluid">
         @php($alert = session('alert'))
 @if($alert && !empty($alert['messages']))
     <div class="alert alert-{{ $alert['type'] }}">
@@ -344,6 +357,22 @@
 
         @yield('content')
     </div>
+    
+<!-- Footer -->
+<footer class="bg-light text-center text-lg-start mt-5 border-top">
+  <div class="container py-3">
+    <div class="row">
+      <div class="col-md-6 text-md-start text-center">
+        <span class="text-muted">© 2025 FCC Portal. All rights reserved.</span>
+      </div>
+      <div class="col-md-6 text-md-end text-center">
+        <span class="text-muted">Version: v1.0.5</span>
+      </div>
+    </div>
+  </div>
+</footer>
+</div>
+<!-- End Footer -->
 
     <div id="loading-overlay">
         <div class="spinner-wrapper">
