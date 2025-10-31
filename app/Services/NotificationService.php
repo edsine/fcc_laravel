@@ -368,7 +368,7 @@ class NotificationService
         $recipientsContactInfo = new RecipientsContactInfoDTO();
         try {
             $sql = "SELECT recipient.first_name, recipient.last_name, recipient.primary_phone AS contact_phone,
-                           recipient.email_address AS contact_email,
+                           recipient.email AS contact_email,
                            CONCAT(recipient.first_name,' ',recipient.last_name, ' (' , organization.organization_name, ')') AS contact_name
                     FROM users AS recipient
                     LEFT JOIN organization AS organization ON recipient.organization_id = organization.id
@@ -413,7 +413,7 @@ class NotificationService
         $recipientsContactInfo = new RecipientsContactInfoDTO();
         try {
             $sql = "SELECT recipient.first_name, recipient.last_name, recipient.primary_phone AS contact_phone,
-                           recipient.email_address AS contact_email,
+                           recipient.email AS contact_email,
                            CONCAT(recipient.first_name,' ',recipient.last_name, ' (' , organization.organization_name, ')') AS contact_name
                     FROM `_test_notification_recipients_user_profile` AS recipient
                     LEFT JOIN organization AS organization ON recipient.organization_id = organization.id
