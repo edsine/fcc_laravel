@@ -6,6 +6,7 @@ use App\Constants\AppConstants;
 use App\DTO\RecipientsContactInfoDTO;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendNotificationJob;
+use App\Jobs\SendSMSNotificationJob;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -72,6 +73,7 @@ class AllFederalMDANotificationController extends Controller
 
             // Dispatch same job you use elsewhere
             dispatch(new SendNotificationJob($notificationPayload, $emails, $phones));
+            dispatch(new SendSMSNotificationJob($notificationPayload, $emails, $phones));
 
             Log::info('SendNotificationJob dispatched for all federal MDA.');
 
