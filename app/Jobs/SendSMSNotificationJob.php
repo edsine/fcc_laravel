@@ -2,42 +2,60 @@
 
 namespace App\Jobs;
 
+use App\Mail\SendEmailNotification;
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Throwable;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
-class SendSmsJob implements ShouldQueue
+class SendSMSNotificationJob implements ShouldQueue
 {
-    use InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    /** @var array Notification payload (keys: 'sms_message' etc.) */
-    protected array $notification;
+    public array $notification;
+    public array $emails;
+    public array $phones;
 
-    /** @var array List of phone numbers (strings) */
-    protected array $phones;
+    public $tries = 3;
 
-    /**
-     * Create a new job instance.
-     *
-     * @param array $notification   // e.g. ['subject'=>..., 'message'=>..., 'sms_message'=>...]
-     * @param array $phones         // e.g. ['+234803....', '+23480.....', ...]
-     */
-    public function __construct(array $notification, array $phones)
+    public function __construct(array $notification, array $emails = [], array $phones = [])
     {
         $this->notification = $notification;
+        $this->emails = $emails;
         $this->phones = $phones;
     }
 
-    /**
-     * Execute the job.
-     */
-    public function handle(): void
+    public function handle()
     {
-        // --- SMS sending block (fixed) ---
+        Log::info('SendNotificationJob started.', [
+            'emails' => $this->emails,
+            'phones' => $this->phones,
+        ]);
+
+        /* // ✉️ Send emails (errors are logged but do not stop the job)
+        foreach ($this->emails as $email) {
+            try {
+                Log::debug("Sending email to: $email");
+                Mail::to($email)->send(new SendEmailNotification(
+                    $this->notification['subject'] ?? '',
+                    $this->notification['message'] ?? ''
+                ));
+                Log::info("Email successfully sent to: $email");
+            } catch (\Throwable $e) {
+                Log::error("Email sending failed to $email", [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                ]);
+                // 🚀 Re-throw so Laravel will retry the job
+                //throw $e;
+            }
+        } */
+
+// --- SMS sending block (fixed) ---
 $smsApiKey   = env('MULTITEXTER_KEY');
 $smsApiUrl   = env('MULTITEXTER_URL');
 $email       = env('MULTITEXTER_EMAIL');
@@ -65,7 +83,15 @@ if (empty($smsApiUrl) || empty($email) || empty($sender_name) || empty($forcednd
             "forcednd"    => $forcednd,
         ];
 
-       // Log::debug('SendNotificationJob: Testing SMS batch payload', ['payload' => $payload]);
+        $payload1 = [
+            "email"       => $email,
+            "message"     => $messageText,
+            "sender_name" => $sender_name,
+            "recipients"  => implode(',', $phones), // <-- IMPORTANT: CSV string, not array
+            "forcednd"    => $forcednd,
+        ];
+
+        Log::debug('SendNotificationJob: SMS batch payload started.', ['payload' => $payload1]);
 
         try {
             $response = Http::withHeaders([
@@ -100,5 +126,10 @@ if (empty($smsApiUrl) || empty($email) || empty($sender_name) || empty($forcednd
         }
     }
 }
+
+
+
+
+        Log::info('SendNotificationJob completed.');
     }
 }

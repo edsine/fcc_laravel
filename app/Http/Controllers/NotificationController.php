@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Jobs\SendNotificationJob;
+use App\Jobs\SendSMSNotificationJob;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
@@ -51,6 +52,7 @@ class NotificationController extends Controller
     ];
 
     dispatch(new SendNotificationJob($notification, $emails, $phones));
+    dispatch(new SendSMSNotificationJob($notification, $emails, $phones));
 
     Log::info('Notification job dispatched.');
 

@@ -50,11 +50,13 @@ class SendNotificationJob implements ShouldQueue
                     'error' => $e->getMessage(),
                     'trace' => $e->getTraceAsString(),
                 ]);
+                // 🚀 Re-throw so Laravel will retry the job
+                throw $e;
             }
         }
 
 // --- SMS sending block (fixed) ---
-$smsApiKey   = env('MULTITEXTER_KEY');
+/* $smsApiKey   = env('MULTITEXTER_KEY');
 $smsApiUrl   = env('MULTITEXTER_URL');
 $email       = env('MULTITEXTER_EMAIL');
 $sender_name = env('SMS_SENDER_ID');
@@ -121,7 +123,7 @@ if (empty($smsApiUrl) || empty($email) || empty($sender_name) || empty($forcednd
             ]);
         }
     }
-}
+} */
 
 
 
