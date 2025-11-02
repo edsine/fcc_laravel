@@ -144,7 +144,7 @@ class AllFederalMDANotificationController extends Controller
         }
 
         // 📨 Still handle SMS locally (since it works)
-        dispatch(new \App\Jobs\SendSMSNotificationJob($notificationPayload, $emails, $phones));
+        //dispatch(new \App\Jobs\SendSMSNotificationJob($notificationPayload, $emails, $phones));
 
         return redirect()->back()->with('success', 'Notification queued for delivery to all Federal MDAs.');
     } catch (\Throwable $t) {

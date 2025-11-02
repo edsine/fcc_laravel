@@ -31,7 +31,7 @@ class SendSMSNotificationJob implements ShouldQueue
 
     public function handle()
     {
-        Log::info('SendNotificationJob started.', [
+        Log::info('SendSMSNotificationJob started.', [
             'emails' => $this->emails,
             'phones' => $this->phones,
         ]);
@@ -65,13 +65,13 @@ $password    = env('MULTITEXTER_PASSWORD');
 $messageText = $this->notification['sms_message'] ?? $this->notification['message'] ?? '';
 
 if (empty($smsApiUrl) || empty($email) || empty($sender_name) || empty($forcednd) || empty($password) || empty($messageText) || empty($smsApiKey)) {
-    Log::error('SendNotificationJob: Missing SMS configuration.');
+    Log::error('SendSMSNotificationJob: Missing SMS configuration.');
 } else {
     // Normalize phone numbers: trim and remove empty entries
     $phones = array_values(array_filter(array_map('trim', $this->phones), fn($p) => !empty($p)));
 
     if (empty($phones)) {
-        Log::info('SendNotificationJob: no phone numbers to send SMS to.');
+        Log::info('SendSMSNotificationJob: no phone numbers to send SMS to.');
     } else {
         // Build request body — recipients MUST be a CSV string for Multitexter
         $payload = [
@@ -91,7 +91,7 @@ if (empty($smsApiUrl) || empty($email) || empty($sender_name) || empty($forcednd
             "forcednd"    => $forcednd,
         ];
 
-        Log::debug('SendNotificationJob: SMS batch payload started.', ['payload' => $payload1]);
+        Log::debug('SendSMSNotificationJob: SMS batch payload started.', ['payload' => $payload1]);
 
         try {
             $response = Http::withHeaders([
@@ -109,7 +109,7 @@ if (empty($smsApiUrl) || empty($email) || empty($sender_name) || empty($forcednd
             ]);
 
             if ($response->successful()) {
-                Log::info('SendNotificationJob: SMS batch sent OK', ['count' => count($phones)]);
+                Log::info('SendSMSNotificationJob: SMS batch sent OK', ['count' => count($phones)]);
             } else {
                 Log::warning('SendNotificationJob: SMS batch failed', [
                     'status' => $response->status(),
@@ -117,7 +117,7 @@ if (empty($smsApiUrl) || empty($email) || empty($sender_name) || empty($forcednd
                 ]);
             }
         } catch (\Throwable $e) {
-            Log::error('SendNotificationJob: SMS batch exception', [
+            Log::error('SendSMSNotificationJob: SMS batch exception', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
