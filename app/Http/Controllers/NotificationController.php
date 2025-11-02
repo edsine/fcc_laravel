@@ -114,7 +114,7 @@ public function send(Request $request)
     }
 
     // 📨 SMS still works locally, keep as-is
-    dispatch(new SendSMSNotificationJob($notification, $emails, $phones));
+    //dispatch(new SendSMSNotificationJob($notification, $emails, $phones));
 
     return redirect()->back()->with('success', 'Notification queued for delivery.');
 }

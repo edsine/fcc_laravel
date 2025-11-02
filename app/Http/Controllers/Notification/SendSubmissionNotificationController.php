@@ -136,9 +136,30 @@ class SendSubmissionNotificationController extends Controller
 
             // Phones array (already collected earlier as $recipientNosArray)
             $phones = $recipientNosArray; // e.g. ['+234803...', '0803...']
+            
+            // 🚀 Instead of dispatching locally, send to mailer API
+        $mailerUrl = env('MAILER_API_URL') . '/api/queue-sms-mda';
 
+        $response = \Illuminate\Support\Facades\Http::timeout(30)
+            ->withHeaders([
+                'Authorization' => 'Bearer ' . env('MAILER_API_TOKEN'),
+                'Accept'        => 'application/json',
+            ])
+            ->post($mailerUrl, [
+                'notification' => $notificationPayload,
+                'phones'       => $phones,
+            ]);
+
+        if ($response->successful()) {
+            Log::info('Mail delegation to mailer API successful', ['response' => $response->json()]);
+        } else {
+            Log::warning('Mail delegation failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+        }
             // Dispatch the job with two arguments: (notification payload, phones)
-            dispatch(new SendSmsJob($notificationPayload, $phones));
+            //dispatch(new SendSmsJob($notificationPayload, $phones));
 
 
             Log::info('SMS job dispatched for submission demand notice', ['count' => count($recipientNosArray)]);
