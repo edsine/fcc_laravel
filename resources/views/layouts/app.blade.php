@@ -44,7 +44,7 @@
     .content {
       flex: 1;
     }
-    
+
     </style>
 </head>
 
@@ -343,7 +343,7 @@
         </div>
     @show
 
-    <div class="content container-fluid">
+    <div class="content container-fluid1" style="overflow-x: hidden;margin-left: 10px;">
         @php($alert = session('alert'))
 @if($alert && !empty($alert['messages']))
     <div class="alert alert-{{ $alert['type'] }}">
