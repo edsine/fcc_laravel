@@ -35,7 +35,7 @@ class AllFederalMDANotificationController extends Controller
      *
      * No validation of recipients — recipients are fetched from DB.
      */
-    public function send(Request $request)
+    public function sendNowOld(Request $request)
     {
         Log::info('AllFederalMDA send request received.', ['request' => $request->all()]);
 
@@ -83,4 +83,74 @@ class AllFederalMDANotificationController extends Controller
             return redirect()->back()->with('error', 'Failed to queue notification. Please try again.');
         }
     }
+
+    public function send(Request $request)
+{
+    Log::info('AllFederalMDA send request received.', ['request' => $request->all()]);
+
+    $notificationPayload = [
+        'subject' => $request->input('subject'),
+        'message' => $request->input('message'),
+        'sms_message' => $request->input('sms_notification_message'),
+    ];
+
+    try {
+        /** @var RecipientsContactInfoDTO $recipientsContactInfo */
+        $recipientsContactInfo = $this->notificationService
+            ->getMDAContactInformationByLevelOfGovernment(AppConstants::FEDERAL);
+
+        // Extract emails
+        $emails = [];
+        if (!empty($recipientsContactInfo->recipientsEmailAddresses)) {
+            foreach ($recipientsContactInfo->recipientsEmailAddresses as $e) {
+                if (!empty($e['contact_email'])) {
+                    $emails[] = trim($e['contact_email']);
+                }
+            }
+        }
+
+        // Extract phones
+        $phones = [];
+        if (!empty($recipientsContactInfo->recipientsPhoneNumbers)) {
+            $phones = array_filter(array_map('trim', explode(',', $recipientsContactInfo->recipientsPhoneNumbers)));
+        }
+
+        Log::info('Fetched recipients for all federal MDA', [
+            'emails_count' => count($emails),
+            'phones_count' => count($phones),
+        ]);
+
+        // 🚀 Instead of dispatching locally, send to mailer API
+        $mailerUrl = env('MAILER_API_URL') . '/api/queue-mail-mda';
+
+        $response = \Illuminate\Support\Facades\Http::timeout(30)
+            ->withHeaders([
+                'Authorization' => 'Bearer ' . env('MAILER_API_TOKEN'),
+                'Accept'        => 'application/json',
+            ])
+            ->post($mailerUrl, [
+                'notification' => $notificationPayload,
+                'emails'       => $emails,
+                'phones'       => $phones,
+            ]);
+
+        if ($response->successful()) {
+            Log::info('Mail delegation to mailer API successful', ['response' => $response->json()]);
+        } else {
+            Log::warning('Mail delegation failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+        }
+
+        // 📨 Still handle SMS locally (since it works)
+        dispatch(new \App\Jobs\SendSMSNotificationJob($notificationPayload, $emails, $phones));
+
+        return redirect()->back()->with('success', 'Notification queued for delivery to all Federal MDAs.');
+    } catch (\Throwable $t) {
+        Log::error('Failed to send notification to all federal MDA', ['error' => $t->getMessage()]);
+        return redirect()->back()->with('error', 'Failed to queue notification. Please try again.');
+    }
+}
+
 }

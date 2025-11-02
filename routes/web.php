@@ -12,6 +12,28 @@ use App\Http\Controllers\Notification\AllFederalMDANotificationController;
 use App\Http\Controllers\Notification\SendSubmissionNotificationController;
 
 
+/* use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
+
+Route::get('/test/optimize-clear', function () {
+    Artisan::call('optimize:clear');
+    Log::info('✅ optimize:clear run from web route');
+    return response('<h3>optimize:clear completed ✅</h3>', 200);
+});
+
+Route::get('/test/schedule-list', function () {
+    Artisan::call('schedule:list');
+    $output = Artisan::output();
+    Log::info('✅ schedule:list run from web route', ['output' => $output]);
+    return response("<pre>$output</pre>", 200);
+});
+
+Route::get('/test/schedule-run', function () {
+    Artisan::call('schedule:run');
+    $output = Artisan::output();
+    Log::info('✅ schedule:run executed from web route', ['output' => $output]);
+    return response("<pre>$output</pre>", 200);
+}); */
 
 
 Route::middleware('auth')->group(function () {

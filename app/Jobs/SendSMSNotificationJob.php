@@ -130,6 +130,6 @@ if (empty($smsApiUrl) || empty($email) || empty($sender_name) || empty($forcednd
 
 
 
-        Log::info('SendNotificationJob completed.');
+        Log::info('SendSMSNotificationJob completed.');
     }
 }
