@@ -109,7 +109,7 @@ class NotificationService
     {
         $notifications = [];
         try {
-            $sql = "SELECT user.profile_type,user.primary_role,user.primary_phone,user.email_address
+            $sql = "SELECT user.profile_type,user.primary_role,user.primary_phone,user.email
                     ,organization.level_of_government
                     FROM users user
                     JOIN organization organization ON user.organization_id = organization.id
@@ -174,7 +174,7 @@ class NotificationService
     {
         $totalUnreadMessages = 0;
         try {
-            $sql = "SELECT user.profile_type,user.primary_role,user.primary_phone,user.email_address
+            $sql = "SELECT user.profile_type,user.primary_role,user.primary_phone,user.email
                     ,organization.level_of_government
                     FROM users user
                     JOIN organization organization ON user.organization_id = organization.id
@@ -228,16 +228,16 @@ class NotificationService
     {
         try {
             $sql = "INSERT INTO notification 
-                (sender_id,recipient_id_or_group,recipient_email_addresses,recipient_phone_numbers
+                (sender_id,recipient_id_or_group,recipient_emailes,recipient_phone_numbers
                 ,notification_subject,notification_message,sms_notification_message,created,created_by,guid)
                 VALUES
-                (:sender_id,:recipient_id_or_group,:recipient_email_addresses,:recipient_phone_numbers,
+                (:sender_id,:recipient_id_or_group,:recipient_emailes,:recipient_phone_numbers,
                 :notification_subject,:notification_message,:sms_notification_message,:created,:created_by,:guid)";
 
             $bindings = [
                 'sender_id' => $notification->sender_id,
                 'recipient_id_or_group' => $notification->recipient_id_or_group,
-                'recipient_email_addresses' => $notification->recipient_email_addresses,
+                'recipient_emailes' => $notification->recipient_emailes,
                 'recipient_phone_numbers' => $notification->recipient_phone_numbers,
                 'notification_subject' => $notification->subject,
                 'notification_message' => $notification->message,
@@ -349,7 +349,7 @@ class NotificationService
         try {
             $inString = implode(',', array_map(fn($r) => DB::getPdo()->quote((string)$r), $recipientRoles));
 
-            $sql = "SELECT u.primary_phone, u.email_address
+            $sql = "SELECT u.primary_phone, u.email
                     FROM users u
                     WHERE u.primary_role IN (
                         SELECT p.role_id FROM system_role_privileges p WHERE p.privilege_id IN ({$inString})
@@ -357,7 +357,7 @@ class NotificationService
 
             $contactInfo = DB::select($sql);
 
-            return $contactInfo; // array of stdClass objects with primary_phone and email_address
+            return $contactInfo; // array of stdClass objects with primary_phone and email
         } catch (Throwable $t) {
             throw new AppException($t->getMessage());
         }
