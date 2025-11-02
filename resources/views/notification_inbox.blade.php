@@ -35,10 +35,11 @@ Mailbox
 }
 
 </style>
+<div class="container">
     <div class="row">
         <div class="col-md-12">
             <div class="inbox-wrapper">
-                <table class="inbox-table">
+                <table class="inbox-table" >
                     <tbody>
                         <tr>
                             <td valign="top" class="inbox-menu">
@@ -142,7 +143,7 @@ Mailbox
             </div>
         </div>
     </div>
-
+</div>
 
 
 <!-- global loading overlay -->
