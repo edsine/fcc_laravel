@@ -94,11 +94,11 @@ class SendSubmissionNotificationController extends Controller
             // if you use GUIDHelper earlier, you can set guid here or keep service to create it
             $notification->guid = \Str::uuid()->toString();
 
-            $addNotificationOutcome = $this->notificationService->addNotification($notification);
+            //$addNotificationOutcome = $this->notificationService->addNotification($notification);
 
-            if (!$addNotificationOutcome) {
+           /*  if (!$addNotificationOutcome) {
                 return redirect()->back()->with('error', 'Notification could not be saved. Please try again.');
-            }
+            } */
 
             // fetch recipient contact info by roles (same roles as original)
             $roles = [
