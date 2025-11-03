@@ -24,7 +24,7 @@ public function showInbox(Request $request)
 
         if (! $user) {
             Log::error('Unauthenticated user attempted to access inbox.');
-            return view('notification_inbox', compact('messages'));
+            return route('login');
         }
 
         try {
